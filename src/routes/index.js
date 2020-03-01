@@ -13,10 +13,13 @@ admin.initializeApp({
 
 const db = admin.database();
 
-router.get('/',(req, res)=>{
-//  console.log("index work")
- res.render('index.hbs')
-});
+
+router.get('/', (req, res) => {
+    db.ref('contacts').once('value', (snapshot) => {
+       data = snapshot.val();
+       res.render('index.hbs', {contacts: data})
+    });
+})
 
 
 router.post('/new-contact', (req, res) => {
@@ -27,8 +30,14 @@ router.post('/new-contact', (req, res) => {
         phone: req.body.phone
     }
     db.ref('contacts').push(newContact);
-    res.send('recived');
+    res.redirect('/');
 });
+
+router.get('/delete-contact/:id', (req, res) => {
+    db.ref('contacts/' + req.params.id).remove();
+    res.redirect('/');
+});
+
 
 module.exports=router;
 
